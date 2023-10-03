@@ -1,8 +1,6 @@
 import glob
 import fiftyone as fo
 import fiftyone.zoo as foz
-
-from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 
 # The folder IDD_Detection contains the two folders Annotations and JPEGImages
