@@ -3,6 +3,19 @@ import fiftyone as fo
 import fiftyone.zoo as foz
 import xml.etree.ElementTree as ET
 
+# Train val split dictionary
+
+splits = ['train', 'val']
+split_dictionary = {}
+
+for split in splits:
+    
+    path = f"C:/Users/ryan/Desktop/thesis/fiftyone/IDD_Detection/{split}.txt"
+
+    with open(path, 'r') as f:
+        for line in f:
+            split_dictionary[line.replace('\n', '')] = split
+
 # The folder IDD_Detection contains the two folders Annotations and JPEGImages
 annotations_path = 'C:/Users/ryan/Desktop/thesis/fiftyone/IDD_Detection/Annotations'
 
@@ -21,9 +34,17 @@ for annot_path in glob.glob(annotations_path + '/**/*.xml', recursive=True):
                       .replace('.xml', '.jpg')
                       .replace('\\', '/')
                       )
-        
-        sample = fo.Sample(filepath=img_path)
-        
+                
+        # Denote the image as part of the Train or Val set
+        f_split_id = f.name[len(annotations_path)+1:].replace('.xml', '').replace('\\', '/')
+        if f_split_id in split_dictionary.keys():
+            split = split_dictionary[f_split_id] # Either 'Train' or 'Val'
+        else:
+            split = 'Other'
+            
+        # Create the Sample
+        sample = fo.Sample(filepath=img_path, tags=[split])
+            
         # List of all detections in the image
         detections = []
         
@@ -69,10 +90,12 @@ for annot_path in glob.glob(annotations_path + '/**/*.xml', recursive=True):
         # Add the sample to our list of samples
         samples.append(sample)
         
+
+
 # Create fiftyone dataset
-dataset = fo.Dataset("My-IDD-fiftyone")
+dataset = fo.Dataset("IDD_Detection_5")
 dataset.add_samples(samples)
 
 # Launch it
 session = fo.launch_app(dataset)
-session.wait() # For use outside of a notebook 
+#session.wait() # For use outside of a notebook
